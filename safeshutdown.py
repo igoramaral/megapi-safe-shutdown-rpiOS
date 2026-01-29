@@ -15,10 +15,8 @@ led.on()
 
 def blink_led():
     print("LED blink thread started")
-    while not power_button.is_pressed:
-        led.on()
-        time.sleep(0.2)
-        led.off()
+    while power_button.value == 0:
+        led.toggle()
         time.sleep(0.2)
 
 def handle_power_off():
