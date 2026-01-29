@@ -25,7 +25,7 @@ def handle_power_off():
 
 def handle_reset():
     print("Rebooting system...")
-    os.system("reboot")
+    os.system("sudo reboot -h now")
 
 # Detecta TRANSIÇÃO (edge), não polling
 power_button.when_released = handle_power_off
