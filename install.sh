@@ -9,6 +9,9 @@ SERVICE_NAME="megapi-safe-shutdown"
 SCRIPT_DST="/usr/local/bin/${SCRIPT_NAME}"
 SERVICE_DST="/etc/systemd/system/${SERVICE_NAME}.service"
 
+OVERLAY_NAME="megapi_pw_io"
+BOOT_CONFIG="/boot/config.txt"
+
 echo "== MegaPi Safe Shutdown installer =="
 echo
 
@@ -25,6 +28,24 @@ if [ -f "$SERVICE_DST" ]; then
   echo
   systemctl --no-pager status "$SERVICE_NAME" || true
   exit 0
+fi
+
+echo "Installing MegaPi Power IO overlay..."
+
+cp ${OVERLAY_NAME}.dtbo /boot/overlays/
+
+if grep -q "$OVERLAY_NAME" "$BOOT_CONFIG"; then
+    sed -i "/$OVERLAY_NAME/c dtoverlay=${OVERLAY_NAME}" "$BOOT_CONFIG"
+    echo "Overlay updated."
+else
+    echo "dtoverlay=${OVERLAY_NAME}" >> "$BOOT_CONFIG"
+    echo "Overlay enabled."
+fi
+
+if grep -q "enable_uart" "$BOOT_CONFIG"; then
+    sed -i '/enable_uart/c enable_uart=1' "$BOOT_CONFIG"
+else
+    echo "enable_uart=1" >> "$BOOT_CONFIG"
 fi
 
 echo "Installing MegaPiCase Safe Shutdown for Raspberry Pi OS..."
@@ -66,6 +87,6 @@ echo "Starting service..."
 systemctl start "$SERVICE_NAME"
 
 echo
-echo "Installation completed successfully!"
-echo "Service status:"
-systemctl --no-pager status "$SERVICE_NAME"
+echo "Installation completed successfully! System will rebot after 3 seconds"
+sleep 3
+sudo reboot
