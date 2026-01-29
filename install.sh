@@ -11,6 +11,8 @@ SERVICE_DST="/etc/systemd/system/${SERVICE_NAME}.service"
 
 OVERLAY_NAME="megapi_pw_io"
 BOOT_CONFIG="/boot/config.txt"
+OVERLAY_DIR="/boot/overlays"
+OVERLAY_PATH="${OVERLAY_DIR}/${OVERLAY_NAME}.dtbo"
 
 echo "== MegaPi Safe Shutdown installer =="
 echo
@@ -32,14 +34,16 @@ fi
 
 echo "Installing MegaPi Power IO overlay..."
 
-cp ${OVERLAY_NAME}.dtbo /boot/overlays/
+mkdir -p "$OVERLAY_DIR"
+
+wget -O "$OVERLAY_PATH" "$REPO_RAW/${OVERLAY_NAME}.dtbo"
 
 if grep -q "$OVERLAY_NAME" "$BOOT_CONFIG"; then
-    sed -i "/$OVERLAY_NAME/c dtoverlay=${OVERLAY_NAME}" "$BOOT_CONFIG"
-    echo "Overlay updated."
+    sed -i "/${OVERLAY_NAME}/c dtoverlay=${OVERLAY_NAME}" "$BOOT_CONFIG"
+    echo "dtoverlay fixed."
 else
     echo "dtoverlay=${OVERLAY_NAME}" >> "$BOOT_CONFIG"
-    echo "Overlay enabled."
+    echo "dtoverlay enabled."
 fi
 
 if grep -q "enable_uart" "$BOOT_CONFIG"; then
@@ -76,7 +80,6 @@ EOF
 
 # 4. reload systemd
 echo "Reloading systemd..."
-systemctl daemon-reexec
 systemctl daemon-reload
 
 # 5. enable + start service
@@ -87,6 +90,6 @@ echo "Starting service..."
 systemctl start "$SERVICE_NAME"
 
 echo
-echo "Installation completed successfully! System will rebot after 3 seconds"
+echo "Installation completed successfully! System will reboot after 3 seconds"
 sleep 3
-sudo reboot
+reboot
