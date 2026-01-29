@@ -5,7 +5,6 @@ import time
 
 # GPIOs
 power_button = Button(3, pull_up=True)
-safe_shtd_button = Button(4, pull_up=True)
 reset_button = Button(2, pull_up=True)
 led = LED(14)
 
@@ -15,13 +14,13 @@ led.on()
 
 def handle_power_off():
     global shutdown_in_progress
+    if shutdown_in_progress:
+        return
 
-    # Executa SOMENTE se safe shutdown estiver habilitado
-    if safe_shtd_button.is_pressed and not shutdown_in_progress:
-        shutdown_in_progress = True
-        led.blink(on_time=0.15, off_time=0.15)
-        print("Shutting down...")
-        os.system("shutdown -h now")
+    shutdown_in_progress = True
+    led.blink(on_time=0.15, off_time=0.15)
+    print("Shutting down...")
+    os.system("sudo shutdown -h now")
 
 def handle_reset():
     print("Rebooting system...")
