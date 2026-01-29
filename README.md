@@ -55,6 +55,14 @@ View logs:
 journalctl -u megapi-safe-shutdown -f
 ```
 
+## Uninstalling
+
+To uninstall the script, run the following command on your Raspberry Pi:
+
+```bash
+wget -O - https://raw.githubusercontent.com/igoramaral/megapi-safe-shutdown-rpiOS/master/uninstall.sh | sudo bash
+```
+
 ## Notes
 
 - This implementation is intended for RetroFlag MegaPi Case
