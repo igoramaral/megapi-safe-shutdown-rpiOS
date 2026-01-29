@@ -2,6 +2,7 @@
 from gpiozero import Button, LED
 import os
 import time
+import threading
 
 # GPIOs
 power_button = Button(3, pull_up=True)
@@ -12,13 +13,27 @@ shutdown_in_progress = False
 
 led.on()
 
+def blink_led():
+    print("LED blink thread started")
+    while not power_button.is_pressed:
+        led.on()
+        time.sleep(0.2)
+        led.off()
+        time.sleep(0.2)
+
 def handle_power_off():
     global shutdown_in_progress
     if shutdown_in_progress:
         return
 
     shutdown_in_progress = True
-    led.blink(on_time=0.15, off_time=0.15)
+    
+    blink_thread = threading.Thread(
+        target=blink_led,
+        daemon=True
+    )
+    blink_thread.start()
+
     print("Shutting down...")
     os.system("sudo shutdown -h now")
 
@@ -26,10 +41,8 @@ def handle_reset():
     print("Rebooting system...")
     os.system("sudo reboot -h now")
 
-# Detecta TRANSIÇÃO (edge), não polling
 power_button.when_released = handle_power_off
 reset_button.when_pressed = handle_reset
 
-# Mantém o script vivo
 from signal import pause
 pause()
