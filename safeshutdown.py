@@ -3,34 +3,34 @@ from gpiozero import Button, LED
 import os
 import time
 
-# GPIO mapping (BCM)
-power_button = Button(3, pull_up=True)        # Power switch
-safe_shtd_button = Button(4, pull_up=True)   # Safe shutdown enable
-reset_button = Button(2, pull_up=True)        # Reset (momentary)
-led = LED(14)                                 # Case LED
+# GPIOs
+power_button = Button(3, pull_up=True)
+safe_shtd_button = Button(4, pull_up=True)
+reset_button = Button(2, pull_up=True)
+led = LED(14)
 
 shutdown_in_progress = False
 
-# Inicialização
 led.on()
 
-def do_shutdown():
+def handle_power_off():
     global shutdown_in_progress
-    if shutdown_in_progress:
-        return
 
-    shutdown_in_progress = True
-    led.blink(on_time=0.2, off_time=0.2)
-    os.system("shutdown -h now")
+    # Executa SOMENTE se safe shutdown estiver habilitado
+    if safe_shtd_button.is_pressed and not shutdown_in_progress:
+        shutdown_in_progress = True
+        led.blink(on_time=0.15, off_time=0.15)
+        print("Shutting down...")
+        os.system("shutdown -h now")
 
-def do_reset():
+def handle_reset():
+    print("Rebooting system...")
     os.system("reboot")
 
-reset_button.when_pressed = do_reset
+# Detecta TRANSIÇÃO (edge), não polling
+power_button.when_released = handle_power_off
+reset_button.when_pressed = handle_reset
 
-while True:
-    # Power OFF + SafeShutdown ON → shutdown
-    if (not power_button.is_pressed) and safe_shtd_button.is_pressed:
-        do_shutdown()
-
-    time.sleep(0.2)
+# Mantém o script vivo
+from signal import pause
+pause()
