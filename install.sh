@@ -32,26 +32,6 @@ if [ -f "$SERVICE_DST" ]; then
   exit 0
 fi
 
-echo "Installing MegaPi Power IO overlay..."
-
-mkdir -p "$OVERLAY_DIR"
-
-wget -O "$OVERLAY_PATH" "$REPO_RAW/${OVERLAY_NAME}.dtbo"
-
-if grep -q "$OVERLAY_NAME" "$BOOT_CONFIG"; then
-    sed -i "/${OVERLAY_NAME}/c dtoverlay=${OVERLAY_NAME}" "$BOOT_CONFIG"
-    echo "dtoverlay fixed."
-else
-    echo "dtoverlay=${OVERLAY_NAME}" >> "$BOOT_CONFIG"
-    echo "dtoverlay enabled."
-fi
-
-if grep -q "enable_uart" "$BOOT_CONFIG"; then
-    sed -i '/enable_uart/c enable_uart=1' "$BOOT_CONFIG"
-else
-    echo "enable_uart=1" >> "$BOOT_CONFIG"
-fi
-
 echo "Installing MegaPiCase Safe Shutdown for Raspberry Pi OS..."
 
 # 2. download python script
