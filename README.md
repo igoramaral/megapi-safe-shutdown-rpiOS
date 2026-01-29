@@ -30,3 +30,38 @@ Run the following command on your Raspberry Pi:
 
 ```bash
 wget -O - https://raw.githubusercontent.com/igoramaral/megapi-safe-shutdown-rpiOS/master/install.sh | sudo bash
+```
+
+The installer will:
+
+- Download the safe shutdown script
+- Install it to the correct system location
+- Create and enable a systemd service
+- Start the service automatically
+
+If the service is already installed, the installer will detect it and exit without making changes.
+
+## Service Management
+
+Check service status:
+
+```bash
+systemctl status megapi-safe-shutdown
+```
+
+View logs:
+
+```bash
+journalctl -u megapi-safe-shutdown -f
+```
+
+## Notes
+
+- This implementation is intended for RetroFlag MegaPi Case
+- Tested with Raspberry Pi 3 Model B and Raspberry Pi OS
+- Root permissions are required due to GPIO access and system shutdown commands
+
+## License
+
+This project is provided as-is, without warranty.
+All original concepts belong to RetroFlag; this is a compatibility-focused reimplementation for Raspberry Pi OS.
